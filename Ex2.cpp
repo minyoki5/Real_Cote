@@ -1,43 +1,37 @@
-// 실전 문제: 큰 수의 법칙 
+// 실전 문제: 큰 수의 법칙 (수정본)
 
 #include <iostream>
-#include <algorithm>
+#include <algorithm> //sort함수 사용을 위해 필요한 헤더파일 
+#include <vector> //벡터 사용을 위해 필요한 헤더파일
 
 using namespace std;
 
-bool desc(int a, int b){  // 내림차순을 만들어주는 함수 정의
-    return a>b;
-}
+int n,m,k;
+vector<int> v;
 
 int main(void){
 
-    int n,m,k;
-    int sum=0;
-
     cin>> n >> m>> k;
 
-    int arr[100]={}; // 배열 만들기~
-
-    for(int i=0;i<n;i++){ // 배열 입력받기
-        cin >> arr[i];
+    for(int i=0;i<n;i++){ //벡터 입력받기
+        int x;
+        cin >> x;
+        v.push_back(x);
 }
 
-sort(arr,arr+n,desc); // 크기가 큰 순서대로 배열을 정렬, 
-//sort함수는 오름차순 정렬을 실행시켜주나 desc함수를 정의해서 내림차순으로 
+sort(v.begin(),v.end()); // 오름차순으로 벡터를 정렬
 
-int K=0;
+int first, second;
 
-for(int i=0;i<m;i++){//m번 더해주기
-if(K<k){ //m번 더할 때 까지 최대 값(첫 인덱스) 더해줌
-sum+=arr[0];
-K++;
-}
-else{//m번 더해주면 그 다음 인덱스를 한 번 더해주고 M을 0으로 초기화 시켜서 다시 최대값 m번 더해주게함
-sum+=arr[1];
-K=0;
-}
+first=v[n-1];//가장 큰 수 저장
+second=v[n-2]; // 두번째로 큰 수 저장
 
-}
-cout<<sum<<endl; // 결과를 출력
+//가장 큰수가 K번 더해지고 두 번째로 큰 수가 1번 더해지는 형태의 반복
+int cnt= m/(k+1) * k + m%(k+1); // 가장 큰 숫자가 더해지는 횟수는 M번을 (K+1)번으로 나누는 몫에 K배 해주고, 나머지 연산을 한 것을 더해준 값이다.
+//두번 째 값은 몫 연산을 한 횟수만큼 더 해질 것이다.
+
+int sum=first*cnt+ second*m/(k+1);
+
+cout<< sum <<'\n'; //endl보다 '\n'이 빠름
 
 }
