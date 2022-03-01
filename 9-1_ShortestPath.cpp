@@ -1,9 +1,10 @@
 //9. 최단경로 구하기
 //다익스트라 알고리즘의 1. 간단한 구현, 2. 개선된 구현과 3.플로이드 워셜 알고리즘
-//#1 간단한 구현- 노드의 개수가 최대 5000개 이하일 경우에는 이 방법이 좋다.
+
 
 #include <iostream>
 #include <vector>
+#include <queue>
 #define INF 1e9    //무한에 해당하는 값을 10억으로 설정
 using namespace std;
 
@@ -21,6 +22,8 @@ bool visited[100001];
 // 최단 거리 테이블 만들기
 int dis[100001];
 
+
+//#1 간단한 구현- 노드의 개수가 최대 5000개 이하일 경우에는 이 방법이 좋다.
 // 방문하지 않은 노드 중에서, 가장 최단 거리가 짧은 노드의 번호를 반환
 int getSmallestNode(){
     int min_val=INF;    //최단거리를 무한대로 초기화
@@ -37,7 +40,8 @@ int getSmallestNode(){
     return index;   //최단거리가 가장 짧은 노드의 번호 반환
 }
 
-void dijkstra(int start){
+
+void simple_dijkstra(int start){
     //시작 노드에 대해서 초기화 진행
     dis[start]=0;
     visited[start]=true;
@@ -64,6 +68,47 @@ void dijkstra(int start){
 
 }
 
+
+//#2. 개선된 다익스트라 구현
+//현재 가장 가까운 노드를 저장하기 위한 목적으로 우선순위 큐를 추가로 이용
+//최소 힙을 이용해 비용이 적은 노드부터 우선적으로 꺼내게 만들어 구현
+//우선순위 큐로 이미 최단거리로 정렬했기 때문에 getSmallestNode()를 이용할 필요가 없음.
+void improved_dijkstra(int start){
+    //우선순위 큐 생성
+    priority_queue<pair<int, int> > pq;
+    //시작노드로 가기 위한 최단거리를 0으로 설정하여 우선순위 큐에 삽입
+    pq.push({0,start});     //(최단 거리, 노드 번호)로 구성
+    dis[start]=0;
+
+    //큐가 비워질 때 까지 반복
+    while(!pq.empty()){
+        //가장 최단 거리가 짧은 노드의 정보를 꺼낸다.
+        //pq.top()을 이용해 우선순위가 가장 높은 원소를 반환하게 한다.
+        //정렬의 기본이 내림차순이므로 '-'를 붙여서 우선순위를 반대로 만들어주고 결과를 낼 때 다시 '-'를 붙여서 원래 결과로 만든다.
+        int dist = -pq.top().first;
+        int now = pq.top().second;
+        //반환 후 원소를 큐에서 제거
+        pq.pop();
+
+        //현재 노드가 이미 처리된 적이 있다면 무시하고 다음으로
+        if(dis[now]<dist){
+            continue;
+        }
+
+        //현재노드와 연결된 다른 노드들의 최단 거리 확인
+        for(int i=0; i<graph[now].size(); i++){
+            int cost = dist + graph[now][i].second; //비용은 현재노드의 최단거리 + 연결된 다른 노드까지의 거리
+            //현재 노드를 거쳐 다른 노드로 이동하는 거리가 더 짧은 경우
+            if(cost<dis[graph[now][i].first]){
+                dis[graph[now][i].first] = cost;    //새로운 값으로 갱신
+                pq.push(make_pair(-cost,graph[now][i].first));   //우선순위 큐에 정보를 삽입, 큐에 삽입되면 알아서 최단거리로 정렬됨
+            }
+        }
+    }
+
+}
+
+
 int main(void){
     cin >> n >> m >> start;
     // 모든 간선 정보 입력 받기
@@ -73,11 +118,15 @@ int main(void){
         graph[a].push_back({b, c}); //노드 a에서 b로 가는 비용이 c라는 의미 
     }
 
+    /*
     //최단 거리 테이블을 모두 무한대 값으로 초기화
     //fill_n(초기화하고싶은배열 이름, 배열의 크기, 초기화 하려는 값)으로 사용할 수 있다.
     fill_n(dis,10001,INF);
     //start에 대해 다익스트라 알고리즘을 수행
-    dijkstra(start);
+    simple_dijkstra(start);*/
+
+    fill(dis, dis + 100001, INF);
+    improved_dijkstra(start);
 
     //모든 노드에 대해 각각 갈 수 있는 최단거리를 출력
     for(int i=1; i<=n; i++){
