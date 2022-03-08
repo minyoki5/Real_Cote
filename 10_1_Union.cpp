@@ -1,4 +1,4 @@
-//10. 그래프이론 1 - 서로소 집합 알고리즘 
+//10. 그래프이론 1 - 서로소 집합 알고리즘 + 사이클 판별 
 
 #include <iostream>
 using namespace std;
@@ -16,6 +16,15 @@ int findParent(int x){
         return x;
     }
     return findParent(parent[x]);
+}
+// 경로 압축(path compression)을 통해 시간복잡도 개선하는 방법
+//find함수를 재귀적으로 호출해 부모 테이블값을 갱신
+int findParent2(int x){
+    if(x==parent[x]){
+        return x;
+    }
+    return parent[x]= findParent(parent[x]);
+    //이 방법을 이용하면 해당 노드의 루트 노드를 바로 부모 모드로 만들 수 있다.
 }
 
 //두 원소가 속한 집합을 합치기(합집합 연산)
@@ -40,16 +49,27 @@ int main(void){
     for(int i=1; i<=v; i++){
         parent[i] = i;
     }
+    //사이클 발생 여부 판단
+    bool cycle = false;
+
     //2. Union연산을 각각 수행
     for(int i=1; i<=e; i++){
         int a,b;
         cin >> a >>b;
-        unionParent(a,b);
+        //사이클이 발생한 경우에는 종료
+        if(findParent2(a) == findParent2(b)){
+            cycle = true;
+            break;
+        }
+        else{
+            unionParent(a,b);
+        }
+
     }
     //3. 각 원소가 속한 집합 출력
     cout << "각 원소가 속한 집합: ";
     for(int i=1; i<=v; i++){
-        cout << findParent(i) <<' ';
+        cout << findParent2(i) <<' ';
     }
     cout << '\n';
     //4. 부모 테이블 내용 출력
@@ -58,4 +78,11 @@ int main(void){
         cout << parent[i] <<' ';
     }
     cout <<'\n';
+
+    if(cycle){
+        cout << "사이클 발생" << '\n';
+    }
+    else{
+        cout << "사이클 발생안함" << '\n';
+    }
 }
